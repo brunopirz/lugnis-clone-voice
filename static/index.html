@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELTON VOICE</title>
+<style>
+  :root {
+    --bg: #07070f; --bg-deep: #040408;
+    --surface: #0f0f1a; --surface-el: #14141f; --surface-hover: #1a1a28;
+    --text: #e2e2f0; --text-muted: rgba(200,200,230,.5);
+    --border: rgba(255,255,255,.06); --border-strong: rgba(255,255,255,.10);
+    --green: #00ff88; --green-soft: rgba(0,255,136,.12);
+    --red: #ff3355; --cyan: #00bbff; --cyan-soft: rgba(0,187,255,.12);
+    --purple: #8866ff; --orange: #ff8800; --amber: #ffaa00;
+    --accent: #ff2244; --accent-soft: rgba(255,34,68,.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(255,34,68,.08) 0%, transparent 60%);
+    font-family: -apple-system, 'Segoe UI', sans-serif; min-height: 100vh;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 26px 20px 70px; }
+  header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  h1 {
+    font-size: 30px; letter-spacing: 1.5px; font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--orange) 50%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .by { font-size: 12px; color: var(--text-muted); }
+  .by a { color: var(--accent); text-decoration: none; }
+  .chip { margin-left: auto; font-size: 12px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; }
+  .chip b { color: var(--green); }
+
+  .colunas { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .colunas { grid-template-columns: 1fr; } }
+  .painel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 12px; }
+
+  /* biblioteca */
+  .busca { width: 100%; background: var(--surface-el); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 10px; }
+  .busca:focus, textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .filtros { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filtro { font-size: 12px; padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface-el); color: var(--text-muted); cursor: pointer; }
+  .filtro.ativo { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+  .lista-vozes { display: flex; flex-direction: column; gap: 8px; max-height: 46vh; overflow-y: auto; padding-right: 4px; }
+  .lista-vozes::-webkit-scrollbar { width: 6px; }
+  .lista-vozes::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  .voz { display: flex; align-items: center; gap: 10px; background: var(--surface-el); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; cursor: pointer; transition: .15s; }
+  .voz:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+  .voz.ativa { border-color: var(--green); background: var(--green-soft); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #04040a; }
+  .voz-info { min-width: 0; flex: 1; }
+  .voz-nome { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .voz-tags { font-size: 11px; color: var(--text-muted); }
+  .genero { font-size: 10px; padding: 1px 7px; border-radius: 8px; flex: none; }
+  .genero.F { background: var(--accent-soft); color: #ff7799; }
+  .genero.M { background: var(--cyan-soft); color: var(--cyan); }
+  .icone { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; width: 26px; height: 26px; cursor: pointer; font-size: 12px; flex: none; }
+  .icone:hover { border-color: var(--border-strong); color: var(--text); }
+  .icone.play { color: var(--green); }
+  .icone.fav.on { color: var(--amber); border-color: rgba(255,170,0,.4); }
+  .icone.del:hover { color: var(--red); }
+
+  .nova-voz { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .nova-voz .linha1 { display: flex; gap: 8px; }
+  .nova-voz input[type=text] { flex: 1; background: var(--surface-el); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 9px 12px; font-size: 13px; min-width: 0; }
+  .nova-voz select { background: var(--surface-el); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 9px; font-size: 13px; }
+  .botoes-voz { display: flex; gap: 8px; }
+  .btn { background: var(--surface-el); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; font-size: 13px; cursor: pointer; transition: .15s; flex: 1; }
+  .btn:hover { border-color: var(--border-strong); background: var(--surface-hover); }
+  .btn.rec.gravando { background: var(--accent); border-color: var(--accent); color: #fff; animation: pulsa 1s infinite; }
+  @keyframes pulsa { 50% { opacity: .55; } }
+  .dica { font-size: 11px; color: var(--text-muted); }
+
+  /* estúdio */
+  textarea { width: 100%; min-height: 170px; background: var(--surface-el); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 14px; font-size: 15px; line-height: 1.55; resize: vertical; }
+  .voz-selecionada { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+  .voz-selecionada b { color: var(--green); }
+  .ajustes { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .slider { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--text-muted); }
+  input[type=range] { accent-color: var(--accent); width: 130px; }
+  .contador { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+  .rodape-gerar { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .principal { background: var(--green); border: none; color: #04140a; font-weight: 800; font-size: 15px; padding: 13px 30px; border-radius: 12px; cursor: pointer; letter-spacing: .5px; }
+  .principal:hover { filter: brightness(1.15); }
+  .principal:disabled { background: #1c3529; color: #5d7a68; cursor: wait; }
+  .statusger { font-size: 13px; color: var(--text-muted); }
+  .statusger.erro { color: var(--red); }
+  .barra { height: 5px; background: var(--surface-el); border-radius: 3px; overflow: hidden; flex: 1; min-width: 120px; display: none; }
+  .barra > div { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); width: 0%; transition: width .4s; }
+  audio { width: 100%; margin-top: 14px; }
+  .saidas { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+  .saida { display: flex; align-items: center; gap: 10px; background: var(--surface-el); border: 1px solid var(--border); border-radius: 10px; padding: 8px 13px; font-size: 12.5px; }
+  .saida a { color: var(--green); text-decoration: none; margin-left: auto; }
+  .oculto { display: none; }
+
+  /* ativação */
+  #ativacao {
+    position: fixed; inset: 0; z-index: 50; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(4,4,8,.88); backdrop-filter: blur(8px);
+  }
+  #ativacao.mostrar { display: flex; }
+  .cartao-ativacao {
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 18px;
+    padding: 34px; max-width: 420px; width: 92%; text-align: center;
+  }
+  .cartao-ativacao h3 {
+    font-size: 22px; margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, var(--orange) 50%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .cartao-ativacao p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5; }
+  .cartao-ativacao input {
+    width: 100%; background: var(--surface-el); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 13px; font-size: 16px; text-align: center; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 12px; font-family: monospace;
+  }
+  .cartao-ativacao .principal { width: 100%; }
+  #ativacaoMsg { font-size: 12.5px; margin-top: 10px; min-height: 16px; }
+
+  /* popup de boas-vindas */
+  #boasvindas {
+    position: fixed; inset: 0; z-index: 45; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(4,4,8,.8); backdrop-filter: blur(6px);
+  }
+  #boasvindas.mostrar { display: flex; animation: surge .25s ease; }
+  @keyframes surge { from { opacity: 0; } to { opacity: 1; } }
+  .cartao-bv {
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 18px;
+    padding: 30px; max-width: 440px; width: 92%; text-align: center; position: relative;
+  }
+  .cartao-bv .fechar {
+    position: absolute; top: 12px; right: 14px; background: none; border: none;
+    color: var(--text-muted); font-size: 20px; cursor: pointer;
+  }
+  .cartao-bv .fechar:hover { color: var(--text); }
+  .cartao-bv h3 {
+    font-size: 21px; margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff 0%, var(--orange) 50%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .cartao-bv .att {
+    display: inline-block; font-size: 11px; color: var(--green); background: var(--green-soft);
+    border: 1px solid rgba(0,255,136,.25); border-radius: 20px; padding: 4px 12px; margin-bottom: 14px;
+  }
+  .cartao-bv p { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; margin-bottom: 18px; }
+  .cta-botoes { display: flex; flex-direction: column; gap: 10px; }
+  .cta { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+    border-radius: 11px; padding: 13px; font-size: 14.5px; font-weight: 700; transition: .15s; }
+  .cta.youtube { background: #ff0033; color: #fff; }
+  .cta.youtube:hover { filter: brightness(1.12); }
+  .cta.discord { background: #5865F2; color: #fff; }
+  .cta.discord:hover { filter: brightness(1.12); }
+  .cta-depois { background: none; border: none; color: var(--text-muted); font-size: 12.5px; cursor: pointer; margin-top: 4px; }
+  .cta-depois:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ELTON VOICE</h1>
+    <div class="by">by <a href="https://www.youtube.com/@eltonmachadoIA" target="_blank">Elton Machado</a> · voz IA 100% local</div>
+    <div class="chip" id="chip">conectando...</div>
+  </header>
+
+  <div class="colunas">
+    <div class="painel">
+      <h2>Biblioteca de vozes <span id="qtd"></span></h2>
+      <input class="busca" id="busca" type="text" placeholder="Buscar voz...">
+      <div class="filtros">
+        <div class="filtro ativo" data-f="todos">Todos</div>
+        <div class="filtro" data-f="fav">★ Favoritas</div>
+        <div class="filtro" data-f="F">Femininas</div>
+        <div class="filtro" data-f="M">Masculinas</div>
+      </div>
+      <div class="lista-vozes" id="vozes"></div>
+      <div class="nova-voz">
+        <div class="linha1">
+          <input type="text" id="nomeVoz" placeholder="Nome da nova voz">
+          <select id="generoVoz"><option value="">Gênero</option><option value="F">Feminina</option><option value="M">Masculina</option></select>
+        </div>
+        <div class="botoes-voz">
+          <button class="btn" onclick="document.getElementById('arqVoz').click()">📁 Enviar áudio</button>
+          <input type="file" id="arqVoz" class="oculto" accept="audio/*">
+          <button class="btn rec" id="btnRec">🎙️ Gravar</button>
+        </div>
+        <div class="dica">10 a 20 segundos de fala limpa bastam pra clonar qualquer voz</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="painel">
+        <h2>Estúdio</h2>
+        <div class="voz-selecionada">Voz selecionada: <b id="vozAtual">Voz padrão</b></div>
+        <textarea id="texto" placeholder="Cole aqui o roteiro que a voz vai narrar..."></textarea>
+        <div class="ajustes">
+          <div class="slider">Emoção <input type="range" id="emocao" min="0" max="100" value="50"></div>
+          <div class="slider">Fidelidade <input type="range" id="fidelidade" min="0" max="100" value="50"></div>
+          <div class="contador"><span id="chars">0</span> caracteres</div>
+        </div>
+        <div class="rodape-gerar">
+          <button class="principal" id="btnGerar">▶ GERAR ÁUDIO</button>
+          <div class="barra" id="barra"><div></div></div>
+          <div class="statusger" id="statusger"></div>
+        </div>
+        <audio id="player" controls class="oculto"></audio>
+      </div>
+
+      <div class="painel" style="margin-top:18px">
+        <h2>Áudios gerados</h2>
+        <div class="saidas" id="saidas"><span class="dica">nenhum ainda</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ativacao">
+  <div class="cartao-ativacao">
+    <h3>ELTON VOICE</h3>
+    <p>Este programa é exclusivo pra comunidade do canal.<br>
+    Entre no <b>Discord do Elton Machado</b> e digite <b>/chave</b> em qualquer canal: a ARIA te manda sua chave no privado.</p>
+    <input id="campoChave" type="text" placeholder="EV-XXXX-XXXX-XXXX" maxlength="18">
+    <button class="principal" id="btnAtivar">ATIVAR</button>
+    <div id="ativacaoMsg"></div>
+  </div>
+</div>
+
+<div id="boasvindas">
+  <div class="cartao-bv">
+    <button class="fechar" id="bvFechar">✕</button>
+    <h3>Bem-vindo ao ELTON VOICE 🎙️</h3>
+    <div class="att">🔄 Atualizações diárias, sempre a versão mais nova</div>
+    <p>Essa ferramenta é gratuita e melhora todo dia. Se ela te ajuda, o combustível é <b>você se inscrever no canal</b>. E toda novidade, voz nova e dica sai primeiro no <b>Discord</b>.</p>
+    <div class="cta-botoes">
+      <a class="cta youtube" id="ctaYoutube" href="#" target="_blank">▶ Inscrever no canal</a>
+      <a class="cta discord" id="ctaDiscord" href="#" target="_blank">💬 Entrar no Discord</a>
+      <button class="cta-depois" id="bvDepois">agora não, quero gerar áudio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// links editáveis (também podem vir do manifesto da VPS, sem nova versão)
+const LINK_YOUTUBE = 'https://www.youtube.com/@eltonmachadoIA?sub_confirmation=1';
+const LINK_DISCORD = 'https://discord.gg/dWBnBwVrbU';
+let vozAtiva = '';
+let vozes = [];
+let filtro = 'todos';
+let gravador = null;
+let amostraTocando = null;
+
+const $ = id => document.getElementById(id);
+const CORES = ['#00ff88', '#00bbff', '#8866ff', '#ff8800', '#ffaa00', '#ff3355', '#ff2244'];
+const corDe = nome => CORES[[...nome].reduce((a, c) => a + c.charCodeAt(0), 0) % CORES.length];
+
+async function api(caminho, opts) {
+  const r = await fetch(caminho, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erro || 'falha na requisição');
+  return j;
+}
+
+function tocarAmostra(nome, botao) {
+  if (amostraTocando) { amostraTocando.pause(); amostraTocando = null; }
+  const tocando = botao.textContent === '⏸';
+  document.querySelectorAll('.icone.play').forEach(b => b.textContent = '▶');
+  if (tocando) return;
+  botao.textContent = '⏸';
+  amostraTocando = new Audio('/amostra/' + encodeURIComponent(nome));
+  amostraTocando.onended = () => { botao.textContent = '▶'; };
+  amostraTocando.play();
+}
+
+async function carregarStatus() {
+  try {
+    const s = await api('/api/status');
+    $('chip').innerHTML = `motor: <b>${s.device === 'cuda' ? 'NVIDIA' : s.device === 'mps' ? 'GPU Apple' : 'CPU'}</b> · modelo ${s.modelo_carregado ? 'pronto ✅' : 'carrega no 1º uso'}`;
+  } catch { $('chip').textContent = 'servidor offline'; }
+}
+
+function desenharVozes() {
+  const termo = $('busca').value.toLowerCase();
+  const div = $('vozes');
+  div.innerHTML = '';
+
+  const padrao = document.createElement('div');
+  padrao.className = 'voz' + (vozAtiva === '' ? ' ativa' : '');
+  padrao.innerHTML = `<div class="avatar" style="background:linear-gradient(135deg,#fff,#ff8800,#ff2244)">EV</div>
+    <div class="voz-info"><div class="voz-nome">Voz padrão</div><div class="voz-tags">nativa do motor</div></div>
+    <button class="icone play" title="ouvir">▶</button>`;
+  padrao.onclick = () => { vozAtiva = ''; desenharVozes(); };
+  padrao.querySelector('.play').onclick = e => { e.stopPropagation(); tocarAmostra('_padrao', e.target); };
+  if (filtro === 'todos' && 'voz padrão'.includes(termo)) div.appendChild(padrao);
+
+  const filtradas = vozes.filter(v =>
+    (filtro === 'todos' || (filtro === 'fav' ? v.favorita : v.genero === filtro)) &&
+    (v.nome.toLowerCase().includes(termo) || (v.tags || []).join(' ').toLowerCase().includes(termo))
+  );
+  $('qtd').textContent = `(${vozes.length + 1})`;
+
+  for (const v of filtradas) {
+    const el = document.createElement('div');
+    el.className = 'voz' + (vozAtiva === v.nome ? ' ativa' : '');
+    el.innerHTML = `
+      <div class="avatar" style="background:${corDe(v.nome)}">${v.nome.slice(0, 2).toUpperCase()}</div>
+      <div class="voz-info">
+        <div class="voz-nome">${v.nome}</div>
+        <div class="voz-tags">${(v.tags || []).join(' · ') || 'voz clonada'}</div>
+      </div>
+      ${v.genero ? `<span class="genero ${v.genero}">${v.genero}</span>` : ''}
+      <button class="icone play" title="ouvir amostra">▶</button>
+      <button class="icone fav ${v.favorita ? 'on' : ''}" title="favoritar">★</button>
+      <button class="icone del" title="apagar">✕</button>`;
+    el.onclick = () => { vozAtiva = v.nome; $('vozAtual').textContent = v.nome; desenharVozes(); };
+    el.querySelector('.play').onclick = e => { e.stopPropagation(); tocarAmostra(v.nome, e.target); };
+    el.querySelector('.fav').onclick = async e => {
+      e.stopPropagation();
+      await api(`/api/vozes/${encodeURIComponent(v.nome)}/favorita`, { method: 'POST' });
+      carregarVozes();
+    };
+    el.querySelector('.del').onclick = async e => {
+      e.stopPropagation();
+      if (!confirm(`Apagar a voz "${v.nome}"?`)) return;
+      await api(`/api/vozes/${encodeURIComponent(v.nome)}`, { method: 'DELETE' });
+      if (vozAtiva === v.nome) { vozAtiva = ''; $('vozAtual').textContent = 'Voz padrão'; }
+      carregarVozes();
+    };
+    div.appendChild(el);
+  }
+  if (vozAtiva === '') $('vozAtual').textContent = 'Voz padrão';
+}
+
+async function carregarVozes() {
+  vozes = await api('/api/vozes');
+  desenharVozes();
+}
+
+$('busca').oninput = desenharVozes;
+document.querySelectorAll('.filtro').forEach(f => f.onclick = () => {
+  document.querySelectorAll('.filtro').forEach(x => x.classList.remove('ativo'));
+  f.classList.add('ativo');
+  filtro = f.dataset.f;
+  desenharVozes();
+});
+
+async function enviarVoz(blob, extensao) {
+  const dica = document.querySelector('.dica');
+  const original = dica.textContent;
+  try {
+    dica.textContent = '⏳ Enviando e preparando a voz...';
+    dica.style.color = 'var(--amber)';
+    const nome = $('nomeVoz').value.trim() || 'minha voz';
+    const fd = new FormData();
+    fd.append('nome', nome);
+    fd.append('genero', $('generoVoz').value);
+    fd.append('arquivo', blob, 'voz.' + extensao);
+    const r = await api('/api/vozes', { method: 'POST', body: fd });
+    vozAtiva = r.voz;
+    $('vozAtual').textContent = r.voz;
+    $('nomeVoz').value = '';
+    await carregarVozes();
+    dica.textContent = `✅ Voz "${r.voz}" clonada e salva na biblioteca!`;
+    dica.style.color = 'var(--green)';
+  } catch (e) {
+    dica.textContent = '❌ Falhou: ' + e.message;
+    dica.style.color = 'var(--red)';
+  }
+  setTimeout(() => { dica.textContent = original; dica.style.color = ''; }, 6000);
+}
+
+// arrastar e soltar áudio em qualquer lugar do painel da biblioteca
+const painelBib = document.querySelector('.painel');
+painelBib.addEventListener('dragover', e => { e.preventDefault(); painelBib.style.borderColor = 'var(--green)'; });
+painelBib.addEventListener('dragleave', () => { painelBib.style.borderColor = ''; });
+painelBib.addEventListener('drop', async e => {
+  e.preventDefault();
+  painelBib.style.borderColor = '';
+  const f = e.dataTransfer.files[0];
+  if (f) await enviarVoz(f, f.name.split('.').pop());
+});
+
+$('arqVoz').onchange = async e => {
+  if (e.target.files[0]) await enviarVoz(e.target.files[0], e.target.files[0].name.split('.').pop());
+  e.target.value = '';
+};
+
+$('btnRec').onclick = async () => {
+  const btn = $('btnRec');
+  if (gravador && gravador.state === 'recording') { gravador.stop(); return; }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  gravador = new MediaRecorder(stream);
+  const partes = [];
+  gravador.ondataavailable = e => partes.push(e.data);
+  gravador.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    btn.classList.remove('gravando');
+    btn.textContent = '🎙️ Gravar';
+    await enviarVoz(new Blob(partes, { type: 'audio/webm' }), 'webm');
+  };
+  gravador.start();
+  btn.classList.add('gravando');
+  btn.textContent = '⏹ Parar';
+};
+
+$('texto').oninput = () => $('chars').textContent = $('texto').value.length;
+
+let poll = null;
+$('btnGerar').onclick = async () => {
+  const texto = $('texto').value.trim();
+  if (!texto) return alert('Cole o roteiro primeiro.');
+  const btn = $('btnGerar'), st = $('statusger'), barra = $('barra');
+  btn.disabled = true;
+  st.className = 'statusger';
+  barra.style.display = 'block';
+  const inicio = Date.now();
+
+  poll = setInterval(async () => {
+    const s = await api('/api/status').catch(() => null);
+    if (!s) return;
+    const seg = Math.round((Date.now() - inicio) / 1000);
+    st.textContent = `${s.etapa || 'processando'}... ${seg}s`;
+    if (s.total > 0) barra.firstElementChild.style.width = Math.round(100 * s.atual / s.total) + '%';
+  }, 800);
+
+  try {
+    const fd = new FormData();
+    fd.append('texto', texto);
+    fd.append('voz', vozAtiva);
+    fd.append('emocao', $('emocao').value / 100);
+    fd.append('fidelidade', $('fidelidade').value / 100);
+    const r = await api('/api/gerar', { method: 'POST', body: fd });
+    st.textContent = `pronto em ${Math.round((Date.now() - inicio) / 1000)}s ✅`;
+    const player = $('player');
+    player.src = '/audio/' + r.arquivo;
+    player.classList.remove('oculto');
+    player.play();
+    carregarSaidas();
+  } catch (e) {
+    st.className = 'statusger erro';
+    st.textContent = 'erro: ' + e.message;
+  } finally {
+    clearInterval(poll);
+    btn.disabled = false;
+    barra.style.display = 'none';
+    barra.firstElementChild.style.width = '0%';
+    carregarStatus();
+  }
+};
+
+async function carregarSaidas() {
+  const nomes = await api('/api/saidas');
+  const div = $('saidas');
+  if (!nomes.length) return;
+  div.innerHTML = '';
+  for (const n of nomes) {
+    const el = document.createElement('div');
+    el.className = 'saida';
+    el.innerHTML = `🎵 ${n} <a href="/audio/${encodeURIComponent(n)}" download>⬇ baixar</a>`;
+    div.appendChild(el);
+  }
+}
+
+// ---------- ativação ----------
+async function checarLicenca() {
+  try {
+    const l = await api('/api/licenca');
+    if (l.estado === 'verificando') { setTimeout(checarLicenca, 1500); return; }
+    document.getElementById('ativacao').classList.toggle('mostrar', l.estado !== 'ativa');
+    if (l.estado === 'bloqueada') {
+      document.getElementById('ativacaoMsg').textContent = 'Sua licença foi bloqueada ou expirou. Fale com o suporte no Discord.';
+      document.getElementById('ativacaoMsg').style.color = 'var(--red)';
+    }
+  } catch { setTimeout(checarLicenca, 3000); }
+}
+
+document.getElementById('btnAtivar').onclick = async () => {
+  const msg = document.getElementById('ativacaoMsg');
+  const chave = document.getElementById('campoChave').value.trim();
+  if (!chave) { msg.textContent = 'Cole a chave que a ARIA te mandou.'; msg.style.color = 'var(--amber)'; return; }
+  msg.textContent = 'Verificando...'; msg.style.color = 'var(--text-muted)';
+  try {
+    const fd = new FormData();
+    fd.append('chave', chave);
+    await api('/api/licenca/ativar', { method: 'POST', body: fd });
+    msg.textContent = '✅ Ativado! Bem-vindo à comunidade.'; msg.style.color = 'var(--green)';
+    setTimeout(() => document.getElementById('ativacao').classList.remove('mostrar'), 900);
+  } catch (e) {
+    msg.textContent = '❌ ' + e.message; msg.style.color = 'var(--red)';
+  }
+};
+
+// ---------- popup de boas-vindas (1x por dia, só depois de ativado) ----------
+async function mostrarBoasVindas() {
+  let yt = LINK_YOUTUBE, dc = LINK_DISCORD;
+  try {
+    const v = await api('/api/versao');
+    if (v.links) { yt = v.links.youtube || yt; dc = v.links.discord || dc; }
+  } catch {}
+  document.getElementById('ctaYoutube').href = yt;
+  document.getElementById('ctaDiscord').href = dc;
+
+  const hoje = new Date().toISOString().slice(0, 10);
+  if (localStorage.getItem('bv_visto') === hoje) return;
+  document.getElementById('boasvindas').classList.add('mostrar');
+}
+function fecharBoasVindas() {
+  localStorage.setItem('bv_visto', new Date().toISOString().slice(0, 10));
+  document.getElementById('boasvindas').classList.remove('mostrar');
+}
+document.getElementById('bvFechar').onclick = fecharBoasVindas;
+document.getElementById('bvDepois').onclick = fecharBoasVindas;
+document.getElementById('ctaYoutube').onclick = () => setTimeout(fecharBoasVindas, 300);
+document.getElementById('ctaDiscord').onclick = () => setTimeout(fecharBoasVindas, 300);
+
+checarLicenca();
+mostrarBoasVindas();
+carregarStatus();
+carregarVozes();
+carregarSaidas();
+setInterval(carregarStatus, 10000);
+</script>
+</body>
+</html>
