@@ -1,10 +1,10 @@
 @echo off
 chcp 65001 >nul
-title ELTON VOICE - Instalador
+title Salvia Video - Instalador
 cd /d "%~dp0"
 
 echo ============================================
-echo    ELTON VOICE - Instalacao (Windows)
+echo    Salvia Video - Instalacao (Windows)
 echo ============================================
 echo.
 
@@ -161,6 +161,6 @@ exit /b 1
 :erro_verificacao
 echo.
 echo [ERRO] A instalacao terminou mas a verificacao falhou.
-echo Rode este INSTALAR.bat de novo. Se o erro continuar, chame o Elton no Discord.
+echo Rode este INSTALAR.bat de novo. Se o erro continuar, consulte a comunidade.
 pause
 exit /b 1

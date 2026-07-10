@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELTON VOICE</title>
+<title>Salvia Video</title>
 <style>
   :root {
     --bg: #07070f; --bg-deep: #040408;
@@ -162,8 +162,8 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>ELTON VOICE</h1>
-    <div class="by">by <a href="https://www.youtube.com/@eltonmachadoIA" target="_blank">Elton Machado</a> · voz IA 100% local</div>
+    <h1>Salvia Video</h1>
+    <div class="by">Estúdio de voz IA 100% local</div>
     <div class="chip" id="chip">conectando...</div>
   </header>
 
@@ -220,10 +220,10 @@
 
 <div id="ativacao">
   <div class="cartao-ativacao">
-    <h3>ELTON VOICE</h3>
-    <p>Este programa é exclusivo pra comunidade do canal.<br>
-    Entre no <b>Discord do Elton Machado</b> e digite <b>/chave</b> em qualquer canal: a ARIA te manda sua chave no privado.</p>
-    <input id="campoChave" type="text" placeholder="EV-XXXX-XXXX-XXXX" maxlength="18">
+    <h3>Salvia Video</h3>
+    <p>Este programa é de uso local e gratuito.<br>
+    Insira sua chave de ativação para começar.</p>
+    <input id="campoChave" type="text" placeholder="SV-XXXX-XXXX-XXXX" maxlength="18">
     <button class="principal" id="btnAtivar">ATIVAR</button>
     <div id="ativacaoMsg"></div>
   </div>
@@ -232,9 +232,9 @@
 <div id="boasvindas">
   <div class="cartao-bv">
     <button class="fechar" id="bvFechar">✕</button>
-    <h3>Bem-vindo ao ELTON VOICE 🎙️</h3>
-    <div class="att">🔄 Atualizações diárias, sempre a versão mais nova</div>
-    <p>Essa ferramenta é gratuita e melhora todo dia. Se ela te ajuda, o combustível é <b>você se inscrever no canal</b>. E toda novidade, voz nova e dica sai primeiro no <b>Discord</b>.</p>
+    <h3>Bem-vindo ao Salvia Video 🎙️</h3>
+    <div class="att">🔄 Versão local e gratuita</div>
+    <p>Esta ferramenta de voz e clonagem de voz funciona 100% offline após o download do modelo.</p>
     <div class="cta-botoes">
       <a class="cta youtube" id="ctaYoutube" href="#" target="_blank">▶ Inscrever no canal</a>
       <a class="cta discord" id="ctaDiscord" href="#" target="_blank">💬 Entrar no Discord</a>
@@ -245,8 +245,8 @@
 
 <script>
 // links editáveis (também podem vir do manifesto da VPS, sem nova versão)
-const LINK_YOUTUBE = 'https://www.youtube.com/@eltonmachadoIA?sub_confirmation=1';
-const LINK_DISCORD = 'https://discord.gg/dWBnBwVrbU';
+const LINK_YOUTUBE = 'https://www.youtube.com';
+const LINK_DISCORD = 'https://discord.com';
 let vozAtiva = '';
 let vozes = [];
 let filtro = 'todos';
@@ -289,7 +289,7 @@ function desenharVozes() {
 
   const padrao = document.createElement('div');
   padrao.className = 'voz' + (vozAtiva === '' ? ' ativa' : '');
-  padrao.innerHTML = `<div class="avatar" style="background:linear-gradient(135deg,#fff,#ff8800,#ff2244)">EV</div>
+  padrao.innerHTML = `<div class="avatar" style="background:linear-gradient(135deg,#fff,#ff8800,#ff2244)">SV</div>
     <div class="voz-info"><div class="voz-nome">Voz padrão</div><div class="voz-tags">nativa do motor</div></div>
     <button class="icone play" title="ouvir">▶</button>`;
   padrao.onclick = () => { vozAtiva = ''; desenharVozes(); };

@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title ELTON VOICE
+title Salvia Video
 cd /d "%~dp0"
 set "PATH=%~dp0ffmpeg;%PATH%"
 set PYTHONUTF8=1
