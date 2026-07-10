@@ -18,4 +18,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Iniciando o Salvia Video..."
-.venv/bin/python app.py
+.venv/bin/python run.py

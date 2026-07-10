@@ -18,5 +18,5 @@ if errorlevel 1 (
     exit /b 1
 )
 
-.venv\Scripts\python app.py
+.venv\Scripts\python run.py
 pause
